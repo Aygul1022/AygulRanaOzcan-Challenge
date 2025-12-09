@@ -6,13 +6,12 @@ on:
       - main
       - '**'
 
-# 🛑 FIX 1: The 'permissions' block must be at the top level 
-# (the same indentation as 'jobs') for GitHub Pages to work reliably.
+# 🛑 FIX: Permissions are now at the top level to grant access for Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
-  # actions: read is optional, but harmless to keep.
+  actions: read # Kept this, but it's optional for the Pages fix
 
 jobs:
   test:
@@ -40,10 +39,9 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-22.04
-    # The deployment should only run on the main branch
     if: github.ref == 'refs/heads/main'
     
-    # REMOVED: The permissions block is no longer here.
+    # REMOVED: Permissions block is no longer here.
 
     environment:
       name: github-pages
@@ -68,6 +66,7 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
+      # These three steps handle the Pages deployment
       - name: Setup Pages
         uses: actions/configure-pages@v4
         with:
