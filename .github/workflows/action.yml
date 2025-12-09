@@ -4,11 +4,14 @@ on:
   push:
     branches:
       - main
+      - '**'
 
+# Top-level permissions (keep these)
 permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 jobs:
   test:
@@ -31,19 +34,17 @@ jobs:
       - name: Build and Test Move project
         working-directory: move
         run: sui move build && sui move test --verbose
-
+        
   deploy:
     needs: test
     runs-on: ubuntu-22.04
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
+
+    # Ensure the deploy job has the required granular permissions too
     permissions:
       contents: read
       pages: write
       id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
