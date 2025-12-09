@@ -4,14 +4,11 @@ on:
   push:
     branches:
       - main
-      - '**'
 
-# 🛑 FIX: Permissions are now at the top level to grant access for Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
-  actions: read # Kept this, but it's optional for the Pages fix
 
 jobs:
   test:
@@ -31,17 +28,18 @@ jobs:
           sudo mv ./sui /usr/local/bin/sui
           sui --version
 
-      # Build the smart Contract
       - name: Build and Test Move project
         working-directory: move
         run: sui move build && sui move test --verbose
-        
+
   deploy:
     needs: test
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/main'
-    
-    # REMOVED: Permissions block is no longer here.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 
     environment:
       name: github-pages
@@ -66,7 +64,6 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      # These three steps handle the Pages deployment
       - name: Setup Pages
         uses: actions/configure-pages@v4
         with:
