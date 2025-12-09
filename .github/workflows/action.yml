@@ -6,11 +6,18 @@ on:
       - main
       - '**'
 
+# 🛑 FIX 1: The 'permissions' block must be at the top level 
+# (the same indentation as 'jobs') for GitHub Pages to work reliably.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  # actions: read is optional, but harmless to keep.
+
 jobs:
   test:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,17 +36,14 @@ jobs:
       - name: Build and Test Move project
         working-directory: move
         run: sui move build && sui move test --verbose
-
+        
   deploy:
     needs: test
     runs-on: ubuntu-22.04
+    # The deployment should only run on the main branch
     if: github.ref == 'refs/heads/main'
     
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-      actions: read
+    # REMOVED: The permissions block is no longer here.
 
     environment:
       name: github-pages
@@ -77,5 +81,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-
